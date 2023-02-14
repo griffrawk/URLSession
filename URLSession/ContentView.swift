@@ -24,19 +24,21 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Text(message)
-                .task {
+                .task(priority: .background) {
                     do {
                         // I think I understand async / await a bit better now.
                         // .sleep is marked async, so has to be called await
                         // and because also marked as throws, has to be 'try'ed.
                         // do {} catch {} is necessary to catch the possible throw
                         // even if I do nothing with an error.
-                        try await Task.sleep(until: .now + .seconds(3), clock: .continuous)
+                        try await Task.sleep(until: .now + .seconds(3),
+                                             clock: .continuous)
                     } catch { }
                     message = "Woken up"
                     
                     // ofc I can convert any error to an optional, or could disable with try!
-                    try? await Task.sleep(until: .now + .seconds(3), clock: .continuous)
+                    try? await Task.sleep(until: .now + .seconds(3),
+                                          clock: .continuous)
                     message = "Had at least 2 cups of coffee"
                 }
             List(results, id: \.trackId) { item in
@@ -64,7 +66,9 @@ struct ContentView: View {
         do {
             // Again .data is async throws, so try await in do catch
             let (data, _) = try await URLSession.shared.data(from: url)
-            if let decodedResponse = try? JSONDecoder().decode(Response.self, from: data) {
+            // try? provides Optional here, dealt with by the if let
+            if let decodedResponse = try? JSONDecoder().decode(Response.self,
+                                                               from: data) {
                 results = decodedResponse.results
             }
         } catch {
